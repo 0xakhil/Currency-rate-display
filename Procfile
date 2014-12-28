@@ -1,1 +1,1 @@
-web: python servertest.py
+web: python bottletest.py
