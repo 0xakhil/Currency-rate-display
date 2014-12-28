@@ -4,12 +4,16 @@
  
 import socket
 import sys
+import os
 from thread import *
  
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 80 # Arbitrary non-privileged port
  
 if __name__ == "__main__": 
+    port = int(os.environ.get("PORT", 5000))
+    PORT = port
+    
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket created'
      
