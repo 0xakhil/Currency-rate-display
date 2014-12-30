@@ -45,6 +45,7 @@ def OCGthread():
 	print 'OCGthread started'
 	# global dictValues
 	while True:
+		sameTimestampFlag = 0
 		try:
 			httpResponse = requests.get(OER_URL)
 		except Exception, errorhttp:
@@ -69,6 +70,7 @@ def OCGthread():
 
 			if jsonDictValues['timestamp'] is dictValues['timestamp']:
 				time.sleep(60)
+				sameTimestampFlag = 1
 				continue
 			dictValues['timestamp'] = jsonDictValues['timestamp']
 			OERtimestamp = dictValues['timestamp']
@@ -84,7 +86,8 @@ def OCGthread():
 			dictValues['errno'] = '1'
 			sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
 			print "Error in httpResponse statuscode = " + str(httpResponse.status_code)
-
+		if sameTimestampFlag is 1:
+			continue
 		try:
 			time.sleep(sleepTime)
 		except Exception, errstring:
