@@ -25,10 +25,15 @@ def checkSanity():
 		dictValues['errno'] = '1'
 		print 'sanity check failed with timestamp difference = ' + str(timestampDiff)
 
+	if int(dictValues['rate']) >= 10000: 	#Raise error if currency rate is greater than Rs.100 as the
+											#client cannot display values greater than Rs.100
+		dictValues['errno'] = '1'
+		print "ERROR: Rate is higher than Rs 100."
+	
 def getSleeptime():
-	if errono is '0':
+	if dictValues['errno'] is '0':
 		currentTimestamp = int(time.time())
-		iSleepTime = OERtimestamp + 3600 - currentTimestamp + 60 
+		iSleepTime = dictValues['timestamp'] + 3600 - currentTimestamp + 60 
 		sSleepTime = str(iSleepTime)
 	else:
 		iSleepTime = ERR_CLIENT_SLEEP_TIME
