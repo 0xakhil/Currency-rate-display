@@ -43,7 +43,7 @@ def getSleeptime():
 
 
 def OCGthread():
-	# print 'OCGthread started'
+	print 'OCGthread started'
 	# global dictValues
 	while True:
 		httpResponse = requests.get(OER_URL)
@@ -67,11 +67,14 @@ def OCGthread():
 			dictValues['errno'] = '1'
 			sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
 			print "Error in httpResponse statuscode = " + str(httpResponse.status_code)
+			
+		try:
+			time.sleep(sleepTime)
+		except Exception, errstring:
+			print errstring
+			print "sleeptime = " + str(sleepTime)
+			time.sleep(5)
 
-		# temp = str(sleepTime + 30)		#wait extra 30 seconds
-		# dictValues['sleeptime'] = temp.zfill(4)
-
-		time.sleep(sleepTime)
 		# break
 
 @route("/")
