@@ -25,16 +25,13 @@ def checkSanity():
 		dictValues['errno'] = '1'
 		print 'sanity check failed with timestamp difference = ' + str(timestampDiff)
 
-	if int(dictValues['rate']) >= 10000: 	#Raise error if currency rate is greater than Rs.100 as the
-											#client cannot display values greater than Rs.100
-		dictValues['errno'] = '1'
-		print "ERROR: Rate is higher than Rs 100."
-
 def getSleeptime():
 	if dictValues['errno'] is '0':
 		currentTimestamp = int(time.time())
 		iSleepTime = dictValues['timestamp'] + 3600 - currentTimestamp + 60 
 		sSleepTime = str(iSleepTime)
+		sSleepTime = sSleepTime.zfill(4)
+
 	else:
 		iSleepTime = ERR_CLIENT_SLEEP_TIME
 		sSleepTime = str(iSleepTime)
@@ -46,14 +43,24 @@ def OCGthread():
 	print 'OCGthread started'
 	# global dictValues
 	while True:
-		httpResponse = requests.get(OER_URL)
-		print "recieved"
+		try:
+			httpResponse = requests.get(OER_URL)
+		except Exception, errorhttp:
+			print "ERROR: Cant GET the URL"
+			print errorhttp
+			time.sleep(ERR_SERVERTHREAD_SLEEP_TIME)
+			continue
+#		print "recieved"
 		if httpResponse.status_code == 200:		#if success
 			dictValues['errno'] = '0'
 			jsonValues = httpResponse.text
 			jsonDictValues = json.loads(jsonValues)
 
 			iCurrRate = jsonDictValues['rates']['INR']
+			if iCurrRate >= 100: 	#Raise error if currency rate is greater than Rs.100 as the
+									#client cannot display values greater than Rs.100
+				dictValues['errno'] = '1'
+				print "ERROR: Rate is higher than Rs 100."
 			iCurrRate = iCurrRate * 100
 			sCurrRate = str(iCurrRate)
 			dictValues['rate'] = sCurrRate[:4]
@@ -62,18 +69,19 @@ def OCGthread():
 			OERtimestamp = dictValues['timestamp']
 			currentTimestamp = int(time.time())
 			sleepTime = OERtimestamp + 3600 + 60 - currentTimestamp #Sleep extra 60 seconds
+			print "\r\nFetched new values and updated the dictValues[]\r\n"
 
 		else:									#if fails, sleep for 10 sec and retry
 			dictValues['errno'] = '1'
 			sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
 			print "Error in httpResponse statuscode = " + str(httpResponse.status_code)
-			
+
 		try:
 			time.sleep(sleepTime)
 		except Exception, errstring:
 			print errstring
 			print "sleeptime = " + str(sleepTime)
-			time.sleep(5)
+			time.sleep(ERR_SERVERTHREAD_SLEEP_TIME)
 
 		# break
 
@@ -84,7 +92,6 @@ def hello_world():
 @route("/inr")
 def inr_function():
 	checkSanity()
-
 	sOutputString = dictValues['magic_no'] + dictValues['errno'] + dictValues['rate'] + getSleeptime()
 	# print outputString
 	return sOutputString
