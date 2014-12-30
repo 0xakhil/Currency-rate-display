@@ -29,6 +29,8 @@ def getSleeptime():
 	if dictValues['errno'] is '0':
 		currentTimestamp = int(time.time())
 		iSleepTime = dictValues['timestamp'] + 3600 - currentTimestamp + 60 
+		if iSleepTime not in range(0,5000):
+			iSleepTime = 60
 		sSleepTime = str(iSleepTime)
 		sSleepTime = sSleepTime.zfill(4)
 
@@ -65,13 +67,16 @@ def OCGthread():
 			sCurrRate = str(iCurrRate)
 			dictValues['rate'] = sCurrRate[:4]
 
+			if jsonDictValues['timestamp'] is dictValues['timestamp']:
+				time.sleep(60)
+				continue
 			dictValues['timestamp'] = jsonDictValues['timestamp']
 			OERtimestamp = dictValues['timestamp']
 			currentTimestamp = int(time.time())
 			sleepTime = OERtimestamp + 3600 + 60 - currentTimestamp #Sleep extra 60 seconds
-			if sleepTime not in range(0,4000):
-				sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
-				print "invalid sleep time value = " + str(sleepTime)
+			# if sleepTime not in range(0,4000):
+			# 	sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
+			# 	print "invalid sleep time value = " + str(sleepTime)
 
 			print "\r\nFetched new values and updated the dictValues[]\r\n"
 
