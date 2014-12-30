@@ -29,7 +29,7 @@ def checkSanity():
 											#client cannot display values greater than Rs.100
 		dictValues['errno'] = '1'
 		print "ERROR: Rate is higher than Rs 100."
-	
+
 def getSleeptime():
 	if dictValues['errno'] is '0':
 		currentTimestamp = int(time.time())
@@ -53,10 +53,10 @@ def OCGthread():
 			jsonValues = httpResponse.text
 			jsonDictValues = json.loads(jsonValues)
 
-			currRate = jsonDictValues['rates']['INR']
-			currRate = currRate * 100
-			currRate = str(currRate)
-			dictValues['rate'] = currRate[:4]
+			iCurrRate = jsonDictValues['rates']['INR']
+			iCurrRate = iCurrRate * 100
+			sCurrRate = str(iCurrRate)
+			dictValues['rate'] = sCurrRate[:4]
 
 			dictValues['timestamp'] = jsonDictValues['timestamp']
 			OERtimestamp = dictValues['timestamp']
