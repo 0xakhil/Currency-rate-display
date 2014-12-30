@@ -21,7 +21,7 @@ ERR_CLIENT_SLEEP_TIME = 30 #sleeptime value to send to the client in case of err
 def checkSanity():
 	currentTimestamp = int(time.time())
 	timestampDiff = currentTimestamp - dictValues['timestamp']
-	if timestampDiff > 4000:
+	if timestampDiff not in range(0,5000): #> 4000:
 		dictValues['errno'] = '1'
 		print 'sanity check failed with timestamp difference = ' + str(timestampDiff)
 
@@ -69,6 +69,10 @@ def OCGthread():
 			OERtimestamp = dictValues['timestamp']
 			currentTimestamp = int(time.time())
 			sleepTime = OERtimestamp + 3600 + 60 - currentTimestamp #Sleep extra 60 seconds
+			if sleepTime not in range(0,4000):
+				sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
+				print "invalid sleep time value = " + str(sleepTime)
+
 			print "\r\nFetched new values and updated the dictValues[]\r\n"
 
 		else:									#if fails, sleep for 10 sec and retry
