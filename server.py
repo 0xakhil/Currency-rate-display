@@ -11,7 +11,12 @@ from bottle import route, run
 OER_URL = "http://www.openexchangerates.org/api/latest.json?app_id=1e76263ca43b439ea182746c19baaab5"
 
 #Initialize dictValues with errno = 1 and sleeptime = 30
-dictValues = {'magic_no':'aaf6','errno':'1','rate':'0000','sleeptime':'0030','timestamp':0}
+dictValues = {'magic_no':'aaf6','errno':'1','rate':'0000','timestamp':0}
+
+#Values
+ERR_SERVERTHREAD_SLEEP_TIME = 5
+ERR_CLIENT_SLEEP_TIME = 30 #sleeptime value to send to the client in case of error
+
 
 def checkSanity():
 	currentTimestamp = int(time.time())
@@ -19,6 +24,16 @@ def checkSanity():
 	if timestampDiff > 4000:
 		dictValues['errno'] = '1'
 		print 'sanity check failed with timestamp difference = ' + str(timestampDiff)
+
+def getSleeptime():
+	if errono is '0':
+		currentTimestamp = int(time.time())
+		iSleepTime = OERtimestamp + 3600 - currentTimestamp + 60 
+		sSleepTime = str(iSleepTime)
+	else:
+		iSleepTime = ERR_CLIENT_SLEEP_TIME
+		sSleepTime = str(iSleepTime)
+	return sSleepTime
 
 
 
@@ -38,17 +53,18 @@ def OCGthread():
 			currRate = str(currRate)
 			dictValues['rate'] = currRate[:4]
 
-			OERtimestamp = jsonDictValues['timestamp']
-			dictValues['timestamp'] = OERtimestamp
+			dictValues['timestamp'] = jsonDictValues['timestamp']
+			OERtimestamp = dictValues['timestamp']
 			currentTimestamp = int(time.time())
 			sleepTime = OERtimestamp + 3600 + 60 - currentTimestamp #Sleep extra 60 seconds
 
 		else:									#if fails, sleep for 10 sec and retry
 			dictValues['errno'] = '1'
-			sleepTime = 10
+			sleepTime = ERR_SERVERTHREAD_SLEEP_TIME
+			print "Error in httpResponse statuscode = " + str(httpResponse.status_code)
 
-		temp = str(sleepTime + 30)		#wait extra 30 seconds
-		dictValues['sleeptime'] = temp.zfill(4)
+		# temp = str(sleepTime + 30)		#wait extra 30 seconds
+		# dictValues['sleeptime'] = temp.zfill(4)
 
 		time.sleep(sleepTime)
 		# break
@@ -60,9 +76,10 @@ def hello_world():
 @route("/inr")
 def inr_function():
 	checkSanity()
-	outputString = dictValues['magic_no'] + dictValues['errno'] + dictValues['rate'] + dictValues['sleeptime']
+
+	sOutputString = dictValues['magic_no'] + dictValues['errno'] + dictValues['rate'] + getSleeptime()
 	# print outputString
-	return outputString
+	return sOutputString
 
 
 if __name__ == "__main__":
@@ -72,6 +89,7 @@ if __name__ == "__main__":
 		t.start()
 	
 	except Exception, errtxt:
+		print "ERROR starting OCGthread\n"
 		print errtxt
 
 	# print dictValues
