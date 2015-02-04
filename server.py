@@ -99,7 +99,8 @@ def OCGthread():
 
 @route("/")
 def hello_world():
-	return "Hi :)"
+	# return "Hi :)"
+	return htmlString
 
 @route("/inr")
 def inr_function():
@@ -111,6 +112,9 @@ def inr_function():
 
 if __name__ == "__main__":
 
+	fileHandle = open("index.html","r")
+	htmlString = fileHandle.read()
+	fileHandle.close()
 	try:
 		t = Thread(None,OCGthread,None,())
 		t.start()
